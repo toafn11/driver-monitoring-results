@@ -1,0 +1,10 @@
+{
+  "samples": 2435,
+  "face_pixels_identical": true,
+  "labels_frames_splits_identical": true,
+  "missing_eyes_by_split": {
+    "train": 37,
+    "test": 15,
+    "val": 30
+  }
+}

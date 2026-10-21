@@ -1,0 +1,86 @@
+{
+  "ready": true,
+  "samples": 29583,
+  "by_split": {
+    "train": 16570,
+    "val": 5384,
+    "test": 7629
+  },
+  "classes": {
+    "eyes": [
+      "close",
+      "closing",
+      "open",
+      "opening"
+    ],
+    "yawn": [
+      "no_yawn",
+      "yawning_with_hand",
+      "yawning_without_hand"
+    ]
+  },
+  "counts": {
+    "train": {
+      "eyes": [
+        1760,
+        1728,
+        10966,
+        2116
+      ],
+      "yawn": [
+        14511,
+        967,
+        1092
+      ]
+    },
+    "val": {
+      "eyes": [
+        562,
+        645,
+        3324,
+        853
+      ],
+      "yawn": [
+        4718,
+        355,
+        311
+      ]
+    },
+    "test": {
+      "eyes": [
+        652,
+        989,
+        4703,
+        1284
+      ],
+      "yawn": [
+        6179,
+        775,
+        675
+      ]
+    }
+  },
+  "missing_labels": {
+    "train": {
+      "eyes": 0,
+      "yawn": 0
+    },
+    "val": {
+      "eyes": 0,
+      "yawn": 0
+    },
+    "test": {
+      "eyes": 1,
+      "yawn": 0
+    }
+  },
+  "crop": {
+    "version": "drowsiness-face-v1",
+    "model_sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+    "samples": 29583,
+    "full_frame_fallback": 15
+  },
+  "metadata_sha256": "a66595b847473dc50d854959ab49e7709f09a17c4e72af7cfab8e12739319186",
+  "archive_bytes": 359272990,
+  "test_evaluated": false
+}

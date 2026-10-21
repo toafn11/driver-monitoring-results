@@ -1,0 +1,10 @@
+# Third-party components and publication scope
+
+This repository is a team research-results and demonstration snapshot. Public visibility is not a blanket license to relicense third-party datasets, models, or libraries. No broad open-source license has been assigned to all materials as one combined work.
+
+- **DMD:** attribute Ortega et al., “DMD: A Large-Scale Multi-Modal Driver Monitoring Dataset for Attention and Alertness Analysis” (2020), https://arxiv.org/abs/2008.12085. The [official site](https://dmd.vicomtech.org/) and [official repository](https://github.com/Vicomtech/DMD-Driver-Monitoring-Dataset) state academic/noncommercial restrictions and CC BY-NC-ND 4.0 for the dataset. No source videos, crops, or annotations are redistributed here. The trained checkpoints are separate research outputs; this release does not resolve or override rights for uses beyond the team's academic demonstration. Consult the data provider for broader redistribution/commercial-use permissions.
+- **MediaPipe Face Landmarker:** pretrained third-party asset, not trained by this project. [Official documentation](https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker). Its identity is pinned in `config/model_assets.json`. [MediaPipe source and licensing](https://github.com/google-ai-edge/mediapipe).
+- **ResNet18:** architecture based on He et al., “Deep Residual Learning for Image Recognition” (CVPR 2016). Training initialized TorchVision ImageNet weights; these are not evidence of original backbone invention. [TorchVision project](https://github.com/pytorch/vision).
+- **Libraries:** PyTorch, NumPy, OpenCV, MediaPipe and Pillow retain their respective licenses. Install them from their distributions; this repository does not vendor their source trees.
+
+Report author names are retained as project attribution. Private credentials, contact details, dataset access links, original document files, raw participant images, and private repository history are outside this publication.

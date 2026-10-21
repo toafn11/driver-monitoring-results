@@ -1,0 +1,70 @@
+{
+  "ready": true,
+  "samples": 23558,
+  "by_split": {
+    "train": 13000,
+    "val": 4237,
+    "test": 6321
+  },
+  "classes": [
+    "drinking",
+    "hair_and_makeup",
+    "phonecall_left",
+    "phonecall_right",
+    "radio",
+    "reach_backseat",
+    "reach_side",
+    "safe_drive",
+    "talking_to_passenger",
+    "texting_left",
+    "texting_right"
+  ],
+  "counts": {
+    "train": [
+      437,
+      514,
+      1752,
+      1552,
+      447,
+      205,
+      1465,
+      5067,
+      369,
+      588,
+      604
+    ],
+    "val": [
+      111,
+      151,
+      482,
+      407,
+      136,
+      55,
+      458,
+      1889,
+      95,
+      234,
+      219
+    ],
+    "test": [
+      247,
+      245,
+      831,
+      667,
+      232,
+      80,
+      631,
+      2747,
+      150,
+      233,
+      258
+    ]
+  },
+  "excluded_actions": [
+    "change_gear",
+    "standstill_or_waiting"
+  ],
+  "archive_bytes": 316504693,
+  "metadata_sha256": "4f2f3be60138f30b2bfc1815d7864bbaa560a0198dc26c646bf5ff3e4d1b2c4a",
+  "test_evaluated": false
+}

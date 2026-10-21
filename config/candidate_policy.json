@@ -1,0 +1,105 @@
+{
+  "version": "hybrid-policy-v3",
+  "status": "development_validation_candidate_not_final",
+  "max_gap_s": 0.6,
+  "branches": {
+    "gaze_away": {
+      "threshold": 0.9,
+      "window_s": 0.8,
+      "fraction": 0.6
+    },
+    "eyes_closed": {
+      "threshold": 0.4,
+      "window_s": 0.8,
+      "fraction": 0.6
+    },
+    "distracted_action": {
+      "threshold": 0.9,
+      "window_s": 1.2,
+      "fraction": 1.0
+    }
+  },
+  "source_report_sha256": "27683e8bbd596f101eff23a58c0a3f736076abb92420e70dfce522385e0276ad",
+  "models": {
+    "gaze": {
+      "file": "gaze.pt",
+      "sha256": "9c6e90e7a50ad7dd5bafe2c7021b75bf4c3cc1be5ec27087b86b1568a9505717",
+      "classes": {
+        "gaze": [
+          "center_mirror",
+          "front",
+          "front_right",
+          "infotainment",
+          "left",
+          "left_mirror",
+          "right",
+          "right_mirror",
+          "steering_wheel"
+        ]
+      },
+      "seed": 43,
+      "epoch": 7,
+      "preprocessing": "PNG 448x224: unchanged decoded crop-v1 face at left; original-video eye band letterboxed at right; black eye tile if missing; no flip",
+      "frame_test_completed": true
+    },
+    "drowsiness": {
+      "file": "drowsiness.pt",
+      "sha256": "01eb9e1288444b74bc9957fa9d4a40d13402ffddd4e0bf11fd0887471ca0b83f",
+      "classes": {
+        "eyes": [
+          "close",
+          "open"
+        ],
+        "yawn": [
+          "no_yawn",
+          "yawning_with_hand",
+          "yawning_without_hand"
+        ]
+      },
+      "seed": 43,
+      "epoch": 6,
+      "preprocessing": "RGB MediaPipe face square 1.4x max side; full-frame fallback; letterbox224; JPEG90; no flip",
+      "frame_test_completed": true
+    },
+    "distraction": {
+      "file": "distraction.pt",
+      "sha256": "bab541c67d87b904fc15cb04e5042fe389e1d976a37d0f622b26ad4c264ec3fc",
+      "classes": {
+        "action": [
+          "drinking",
+          "hair_and_makeup",
+          "phonecall_left",
+          "phonecall_right",
+          "radio",
+          "reach_backseat",
+          "reach_side",
+          "safe_drive",
+          "talking_to_passenger",
+          "texting_left",
+          "texting_right"
+        ]
+      },
+      "seed": 43,
+      "epoch": 8,
+      "preprocessing": "RGB letterbox black padding; no horizontal flip",
+      "frame_test_completed": true
+    }
+  },
+  "selection_rule": "Action groups chosen with <=1% negative occupancy per fitting person and pooled <=8 false starts per negative hour, then recall; gaze/eyes unchanged from v2 candidate.",
+  "action_hysteresis": {
+    "thresholds": {
+      "phone": 0.6,
+      "other": 0.5,
+      "talk": 0.9
+    },
+    "group_hold_s": {
+      "talk": 3.0
+    },
+    "hold_s": 1.2,
+    "release_s": 0.0,
+    "off_margin": 0.1,
+    "cooldown_s": 1.0,
+    "bridge_s": 0.2,
+    "max_gap_s": 0.6
+  }
+}

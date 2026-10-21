@@ -1,0 +1,13 @@
+{
+  "tag": "v1.0.0",
+  "url": "https://github.com/toafn11/driver-monitoring-results/releases/download/v1.0.0/driver-models-v1.0.0.zip",
+  "sha256": "1a9f5736fa16dff08bf155e7b6ee7b3209e2f6317bfc74845ea1e1a5811df021",
+  "bytes": 128043129,
+  "files": {
+    "gaze.pt": "9c6e90e7a50ad7dd5bafe2c7021b75bf4c3cc1be5ec27087b86b1568a9505717",
+    "drowsiness.pt": "01eb9e1288444b74bc9957fa9d4a40d13402ffddd4e0bf11fd0887471ca0b83f",
+    "distraction.pt": "bab541c67d87b904fc15cb04e5042fe389e1d976a37d0f622b26ad4c264ec3fc",
+    "face_landmarker.task": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+    "manifest.json": "9af249135c9cc41ce5ec835d53fdda1eacd1a8b541b02489da0995f2e3324b9f"
+  }
+}

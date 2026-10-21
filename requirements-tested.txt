@@ -1,0 +1,8 @@
+# Local verification environment, Python 3.12.14, CPU, Windows.
+# CPU torch wheels can be installed from https://download.pytorch.org/whl/cpu
+torch==2.14.0
+numpy==2.5.3
+opencv-python==5.0.0.93
+mediapipe==1.0.1
+Pillow==12.3.0
+
