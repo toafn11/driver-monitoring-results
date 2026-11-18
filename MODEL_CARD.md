@@ -4,7 +4,7 @@ Research snapshot: 2026-10-08. Demo packaging: 2026-10-21.
 
 ## Intended use
 
-Academic investigation and stationary team demonstrations of visual driver-state cues. Outputs are not physiological diagnoses, validated road-risk estimates, or certified safety warnings. Camera and audio end-to-end validation is unfinished; audio is not implemented in this demo.
+Academic investigation and stationary team demonstrations of visual driver-state cues. Outputs are not physiological diagnoses, validated road-risk estimates, or certified safety warnings. Camera and audio end-to-end validation is unfinished. The optional Windows audio backend and sustained-yawn alert added on 2026-11-18 are demo features; the yawn alert is not included in the frozen policy or reported evaluation metrics. See the README for activation, thresholds, and limitations.
 
 ## Model identities
 

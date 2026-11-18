@@ -25,6 +25,8 @@ Install Python **3.12** (64-bit). A CPU is sufficient to try the demo; actual sp
 git clone https://github.com/toafn11/driver-monitoring-results.git
 cd driver-monitoring-results
 py -3.12 -m venv .venv
+# If the next command says that python.exe is not recognized, rerun the
+# venv command above from this repository directory.
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install torch --index-url https://download.pytorch.org/whl/cpu
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
@@ -54,7 +56,22 @@ To demonstrate driver-action recognition, position the camera so that the **uppe
 
 `--body-visible` is your declaration, not an automatic visibility detector. A tight laptop face view is not sufficient to assess phone use or reaching behavior reliably. The original DMD branches used different camera views; using one webcam for all branches is exploratory.
 
-Use seated, stationary demonstrations. Do not perform distracting actions while driving. There is no audio alarm in this release. The new window displays predictions, active alerts, missing observations, and processing time. Footage is neither uploaded nor recorded.
+Use seated, stationary demonstrations. Do not perform distracting actions while driving. The window displays predictions, active alerts, missing observations, and processing time. Footage is neither uploaded nor recorded.
+
+### Audible demo and sustained-yawn alert (Windows)
+
+After setup, double-click `DEMO_ALERTS.cmd` for webcam 0, or drag a local video onto that file. Equivalent commands:
+
+```powershell
+.\.venv\Scripts\python.exe demo.py --camera 0 --sound --yawn-alert
+.\.venv\Scripts\python.exe demo.py --video "C:\videos\demo.mp4" --sound --yawn-alert
+```
+
+Add `--body-visible` only when the torso and hands are visible. Check Windows volume and mute settings. A two-beep tone plays when any alert is active, repeating at most once every five wall-clock seconds. Audio stops when no alert remains. Sound-enabled video playback is paced to its source timeline; slow inference can still make playback slower. This option generates warning tones, not the video's original audio track. The built-in sound backend currently supports Windows only.
+
+By default, yawning is a prediction only. With `--yawn-alert`, the sum of `yawning_with_hand` and `yawning_without_hand` probabilities must remain at least 0.70 for 1.0 second to activate `ALERT: yawning`. Missing observations, negative predictions, or observation gaps exceeding 0.6 seconds reset the timer. A brief mouth opening may therefore remain a prediction without triggering an alert.
+
+This optional rule is a **demo extension, not a validated drowsiness diagnosis**. It does not retrain or modify the models or frozen research policy. The published metrics do not evaluate this extension. Logs preserve the original policy output as `research_alerts` and record the extension configuration separately. Omit `--yawn-alert` to run the original alert rules; omit `--sound` for silent operation.
 
 ### Video demonstration
 
@@ -84,6 +101,18 @@ python demo.py --camera 0
 ```
 
 The release was locally checked on Windows/Python 3.12 CPU. Linux, macOS, CUDA, and actual camera devices still require platform-specific validation. CUDA users should install the appropriate PyTorch build and then pass `--device cuda`; CPU is the default.
+
+### Windows troubleshooting
+
+If PowerShell reports that `.\.venv\Scripts\python.exe` is not recognized, the virtual environment has not been created at the current location. Run these commands from the cloned repository directory:
+
+```powershell
+py -3.12 -m venv .venv
+Test-Path .\.venv\Scripts\python.exe
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+```
+
+The `Test-Path` command must return `True`. If `py -3.12` is not recognized, install the 64-bit Python 3.12 launcher, reopen PowerShell, and run the commands again. Do not run the `.venv` command from the parent directory or another PowerShell working directory.
 
 ## Reading the demo correctly
 
@@ -170,4 +199,3 @@ See [release verification](docs/RELEASE_VERIFICATION.md) for what was actually c
 ## Data and third-party components
 
 No DMD video, extracted face images, private dataset links, or training caches are included. Obtain research data from [Vicomtech](https://dmd.vicomtech.org/) under its terms. The public release contains the team's selected trained checkpoints and the referenced pretrained landmarker asset; this is not a grant of unrestricted rights to the source dataset or third-party components. See [third-party notices and usage scope](THIRD_PARTY_NOTICES.md).
-

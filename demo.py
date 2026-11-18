@@ -18,6 +18,8 @@ def parse_args(argv=None):
     p.add_argument('--headless',action='store_true',help='Video-only mode without a display window.')
     p.add_argument('--max-samples',type=int)
     p.add_argument('--log-dir',type=Path,help='Optional local JSON logs; images are not saved.')
+    p.add_argument('--sound',action='store_true',help='Play a non-blocking Windows alert tone, rate-limited to every 5 seconds.')
+    p.add_argument('--yawn-alert',action='store_true',help='Add an unvalidated demo alert for sustained yawning (separate from the frozen research policy).')
     a=p.parse_args(argv)
     if not 2<=a.sample_fps<=30:p.error('--sample-fps must be between 2 and 30.')
     if a.threads<1 or (a.max_samples is not None and a.max_samples<1):p.error('Limits must be positive.')
@@ -33,6 +35,10 @@ def overlay(frame,result,body_enabled,processing_ms):
            'ALERT: '+(', '.join(active) if active else 'none (not a safety guarantee)'),
            'Unknown: '+(', '.join(result['alerts']['unknown']) or 'none'),
            'Action branch: '+('ENABLED - body view declared by operator' if body_enabled else 'DISABLED - face-only demo')]
+    lines += ['Audio: '+result.get('audio_status','disabled')]
+    if 'demo_yawn' in result:
+        score=result['demo_yawn']['score']
+        lines += ['Yawn demo rule: '+('unknown' if score is None else format(score,'.2f'))+' | >=0.70 for 1.0s (not validated)']
     lines += [h+': '+p['label']+'  '+format(p['score'],'.2f') for h,p in result['predictions'].items()]
     lines += ['Inference: '+format(processing_ms,'.0f')+' ms | Webcam performance not validated']
     wrapped=[]
@@ -54,10 +60,14 @@ def run(args):
     import cv2
     import torch
     from driver_system.runtime import DriverSystem
+    from driver_system.demo_alerts import YawnDemoAlert
+    from driver_system.demo_audio import AlertAudio
     lock=verify(args.bundle)
     torch.set_num_threads(args.threads)
     if args.device=='cuda' and not torch.cuda.is_available():raise ValueError('CUDA unavailable. Use --device cpu.')
     system=None;cap=None;log=None;samples=0;last=None;next_sample=0.;result=None;ms=0.
+    yawn_alert=YawnDemoAlert() if args.yawn_alert else None
+    audio=AlertAudio(enabled=args.sound)
     started=time.monotonic()
     try:
         system=DriverSystem(args.bundle,args.device,args.body_visible,policy_config=lock['policy'])
@@ -76,9 +86,22 @@ def run(args):
             if not __import__('math').isfinite(t) or (last is not None and t<=last):
                 raise ValueError('Non-increasing timestamps. Audit or repair the input video.')
             last=t
+            # Sound-enabled video demos must not run faster than their source timeline.
+            if args.video is not None and args.sound:
+                stop_requested=False
+                while t-(time.monotonic()-clock_start)>.001:
+                    delay=min(.03,t-(time.monotonic()-clock_start))
+                    if args.headless:
+                        time.sleep(max(0,delay))
+                    elif cv2.waitKey(max(1,int(delay*1000)))&0xff in (ord('q'),ord('Q'),27):
+                        stop_requested=True;break
+                if stop_requested:break
             if t+1e-6>=next_sample:
                 begin=time.perf_counter()
                 result=system.process(cv2.cvtColor(frame,cv2.COLOR_BGR2RGB),t)
+                if yawn_alert is not None:result=yawn_alert.update(result)
+                audio.update(result['alerts']['active'])
+                result['audio_status']=audio.status
                 ms=(time.perf_counter()-begin)*1000
                 next_sample=t+1/args.sample_fps;samples+=1
                 if log:log.write(json.dumps({**result,'processing_ms':ms})+'\n')
@@ -91,11 +114,14 @@ def run(args):
         if not samples:raise RuntimeError('No samples processed.')
         summary={'samples':samples,'wall_seconds':time.monotonic()-started,'source_type':'camera' if args.camera is not None else 'video',
                  'policy_sha256':lock['policy_sha256'],'body_visible_declared':args.body_visible,
+                 'demo_yawn_config':yawn_alert.config if yawn_alert else None,
+                 'audio_status':audio.status,'sound_requested':args.sound,
                  'limited_run':bool(args.max_samples and samples>=args.max_samples),
                  'status':'completed','note':'Demo run, not labeled evaluation. Video EOF and decode failure are not distinguished by OpenCV.'}
         if args.log_dir:(args.log_dir/'demo_summary.json').write_text(json.dumps(summary,indent=2))
         print(json.dumps(summary,indent=2))
     finally:
+        audio.close()
         if log:log.close()
         if cap is not None:cap.release()
         if system is not None:system.close()

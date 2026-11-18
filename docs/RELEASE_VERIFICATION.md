@@ -2,6 +2,13 @@
 
 This document describes software checks for the demo package, not new model-accuracy results.
 
+## Demo extension verification, 18 November 2026
+
+- All 20 unit tests passed, including sustained-yawn activation, reset on missing observations/gaps, preservation of original research alerts, audio throttling, and backend failure handling. Python compilation and Git whitespace checks passed.
+- A local 10-second SUST-DDD `d_1.mp4` clip ran through the actual models with `--headless --sound --yawn-alert`: 100 samples completed; yawning alerts started at source times 6.6 and 9.3 seconds. Audio status remained `ready-windows` without a playback exception. Total measured demo runtime was 31.31 seconds, so this CPU run does not establish real-time speed.
+- The clip is a functional smoke test, not a labeled accuracy evaluation. The operator must still verify audible output, speaker volume, webcam behavior, and false alerts on their machine.
+- Model weights, final-lock policy and reported research metrics are unchanged. The optional demo yawn rule is not validation-calibrated and must not be represented as part of the frozen evaluation.
+
 ## Checked locally
 
 - Frozen Gaze, Drowsiness and Distraction checkpoint hashes matched the final research lock.
