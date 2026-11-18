@@ -12,7 +12,8 @@
 
 - For the optional audible/yawn demo on Windows, launch `DEMO_ALERTS.cmd` or use `--sound --yawn-alert`. Check system volume. Explain that this adds an unvalidated sustained-yawn rule to the frozen policy.
 - Observe the distinction between a yawn prediction and `ALERT: yawning`: the latter requires combined yawn probability at least 0.70 for 1.0 second without missing observations or gaps over 0.6 seconds. Record missed and unexpected warnings too.
-- Confirm the warning tone plays when an alert is active, is limited to once every five seconds, and stops after alerts clear or the demo exits. Record whether sound was actually audible; software checks alone cannot establish this.
+- Confirm the warning tone loops while an alert is active and stops after alerts clear or the demo exits. Record whether sound was actually audible; software checks alone cannot establish this.
+- Both alert launchers now enable observation monitoring: look forward, press C, and stay still until posture calibration is ready. Test sustained head lowering, face occlusion over 2 seconds, and recovery. `driver_not_visible` means attention is unknown, not that distraction was recognized. Use `DEMO_BODY_ALERTS.cmd` only with torso/hands visible to exercise the independent action model.
 - Start with neutral forward gaze and observe whether the face is available.
 - Briefly look to different regions while remaining seated. Explain that mirror checks are not automatically unsafe.
 - Show short eye closure only in a stationary demonstration; explain the time rule.

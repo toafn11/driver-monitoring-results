@@ -63,15 +63,28 @@ Use seated, stationary demonstrations. Do not perform distracting actions while 
 After setup, double-click `DEMO_ALERTS.cmd` for webcam 0, or drag a local video onto that file. Equivalent commands:
 
 ```powershell
-.\.venv\Scripts\python.exe demo.py --camera 0 --sound --yawn-alert
-.\.venv\Scripts\python.exe demo.py --video "C:\videos\demo.mp4" --sound --yawn-alert
+.\.venv\Scripts\python.exe demo.py --camera 0 --sound --yawn-alert --monitor-alerts
+.\.venv\Scripts\python.exe demo.py --video "C:\videos\demo.mp4" --sound --yawn-alert --monitor-alerts
 ```
 
-Add `--body-visible` only when the torso and hands are visible. Check Windows volume and mute settings. A two-beep tone plays when any alert is active, repeating at most once every five wall-clock seconds. Audio stops when no alert remains. Sound-enabled video playback is paced to its source timeline; slow inference can still make playback slower. This option generates warning tones, not the video's original audio track. The built-in sound backend currently supports Windows only.
+Add `--body-visible` only when the torso and hands are visible, or use `DEMO_BODY_ALERTS.cmd` (also accepts a dragged video). The action model runs on the full frame independently of face detection; a face-only view cannot support reliable body-action recognition. Check Windows volume and mute settings. A two-beep pattern loops continuously while any alert is active, including between inference calls. It stops when all alerts clear or the demo exits. Sound-enabled video playback is paced to its source timeline; slow inference can still make playback slower. This option generates warning tones, not the video's original audio track. The built-in sound backend currently supports Windows only.
 
 By default, yawning is a prediction only. With `--yawn-alert`, the sum of `yawning_with_hand` and `yawning_without_hand` probabilities must remain at least 0.70 for 1.0 second to activate `ALERT: yawning`. Missing observations, negative predictions, or observation gaps exceeding 0.6 seconds reset the timer. A brief mouth opening may therefore remain a prediction without triggering an alert.
 
 This optional rule is a **demo extension, not a validated drowsiness diagnosis**. It does not retrain or modify the models or frozen research policy. The published metrics do not evaluate this extension. Logs preserve the original policy output as `research_alerts` and record the extension configuration separately. Omit `--yawn-alert` to run the original alert rules; omit `--sound` for silent operation.
+
+### Missing face and lowered-head monitoring
+
+`DEMO_ALERTS.cmd` and `DEMO_BODY_ALERTS.cmd` enable `--monitor-alerts`. This adds two separate demo warnings:
+
+- `driver_not_visible`: face detection is unavailable continuously for 2 seconds. This is an observation warning, **not proof of distraction**. Occlusion, leaving the frame, low light, or a lowered head can all cause it. It works before posture calibration.
+- `head_lowered`: relative face geometry indicates a sustained change from the operator's forward-looking posture for 1 second. Look forward, press **C** in the preview, and hold still for at least 2 seconds until `Posture: ready`. Recalibrate after moving the camera or changing seat position. For a video/headless run that starts with a known forward-looking pose, use `--calibrate-at-start`; do not calibrate on an already lowered head.
+
+Both warnings require 0.5 seconds of observed recovery to clear. Losing face landmarks does not clear an already active lowered-head warning. Observation gaps over 1 second reset pending activation/recovery timers rather than counting unobserved time. Without calibration, lowered-head detection remains unknown; missing-face warnings still operate.
+
+The posture rule uses image-space nose/eye/chin geometry and downward movement, not a trained nod detector or measured pitch angle. Relative thresholds are 0.12 for nose position along the eye-to-chin axis or 0.12 image height for eye-center descent; face scale must remain between 0.7 and 1.4 times the baseline. Camera movement, facial movement, off-angle views, and calibration errors can cause misses or false alerts. These engineering defaults have not been calibrated on labeled validation clips. No new accuracy claim is made. Disable both `--monitor-alerts` and `--yawn-alert` to reproduce the original frozen alert rules.
+
+Suggested acceptance sequence while stationary: forward gaze, brief head movement, sustained head lowering, hide the face for over 2 seconds, then return to the calibrated forward pose. Check that warning text remains visible and beeps continue during a sustained alert, and that both stop after recovery. Document failures as well as successes.
 
 ### Video demonstration
 

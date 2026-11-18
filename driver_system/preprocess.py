@@ -34,6 +34,18 @@ def eye_box(points,w,h):
     box=(max(0,int(cx-width/2)),max(0,int(cy-height/2)),min(w,int(np.ceil(cx+width/2))),min(h,int(np.ceil(cy+height/2))))
     return box if box[2]>box[0] and box[3]>box[1] else None
 
+def demo_geometry(points):
+    """Image-space posture cues, not head-pose angles or trained predictions."""
+    if len(points)<264:return None
+    xy=np.array([(p.x,p.y) for p in points],dtype=float)
+    if not np.isfinite(xy).all():return None
+    eyes=(xy[33]+xy[263])/2
+    axis=xy[152]-eyes
+    length=float(np.linalg.norm(axis))
+    if length<.03:return None
+    return {'nose_ratio':float(np.dot(xy[1]-eyes,axis)/(length*length)),
+            'center_y':float(eyes[1]),'face_scale':length}
+
 class PairPreprocessor:
     def __init__(self,model_path=None):
         import mediapipe as mp
@@ -61,7 +73,7 @@ class PairPreprocessor:
         eye=np.zeros((224,224,3),np.uint8)
         if eyes:
             x0,y0,x1,y1=eyes;eye=letterbox(bgr[y0:y1,x0:x1],224)
-        return cv2.cvtColor(np.concatenate([face,eye],1),cv2.COLOR_BGR2RGB),dict(face_available=bool(face_box),eye_available=bool(eyes))
+        return cv2.cvtColor(np.concatenate([face,eye],1),cv2.COLOR_BGR2RGB),dict(face_available=bool(face_box),eye_available=bool(eyes),demo_geometry=demo_geometry(points) if face_box else None)
     def close(self):self.detector.close()
     def __enter__(self):return self
     def __exit__(self,*args):self.close()

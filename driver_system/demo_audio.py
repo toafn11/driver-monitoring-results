@@ -9,7 +9,8 @@ import wave
 
 
 class AlertAudio:
-    def __init__(self, enabled=False, repeat_s=5., play=None, stop=None, clock=time.monotonic):
+    def __init__(self, enabled=False, repeat_s=5., play=None, stop=None, clock=time.monotonic, continuous=False):
+        self.continuous = continuous
         self.enabled = enabled
         self.repeat_s = repeat_s
         self.clock = clock
@@ -35,7 +36,7 @@ class AlertAudio:
             path = Path(self.directory.name)/'alert.wav'
             rate = 22050
             frames = bytearray()
-            for i in range(int(rate*.55)):
+            for i in range(int(rate*(.8 if continuous else .55))):
                 t = i/rate
                 tone = (0 <= t < .18) or (.28 <= t < .46)
                 value = int(9000*math.sin(2*math.pi*880*t)) if tone else 0
@@ -43,7 +44,9 @@ class AlertAudio:
             with wave.open(str(path), 'wb') as out:
                 out.setnchannels(1); out.setsampwidth(2); out.setframerate(rate)
                 out.writeframes(frames)
-            self.play = lambda: winsound.PlaySound(str(path), winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_NODEFAULT)
+            flags = winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_NODEFAULT
+            if continuous:flags |= winsound.SND_LOOP
+            self.play = lambda: winsound.PlaySound(str(path), flags)
             self.stop = lambda: winsound.PlaySound(None, 0)
             self.status = 'ready-windows'
         except Exception as error:
@@ -60,7 +63,7 @@ class AlertAudio:
         if not current:
             if self.previous:
                 self._stop()
-        elif self.last_play is None or now-self.last_play >= self.repeat_s:
+        elif (not self.previous if self.continuous else self.last_play is None or now-self.last_play >= self.repeat_s):
             try:
                 self.play()
                 self.last_play = now

@@ -6,6 +6,8 @@ Research snapshot: 2026-10-08. Demo packaging: 2026-10-21.
 
 Academic investigation and stationary team demonstrations of visual driver-state cues. Outputs are not physiological diagnoses, validated road-risk estimates, or certified safety warnings. Camera and audio end-to-end validation is unfinished. The optional Windows audio backend and sustained-yawn alert added on 2026-11-18 are demo features; the yawn alert is not included in the frozen policy or reported evaluation metrics. See the README for activation, thresholds, and limitations.
 
+The extended demo also provides missing-face warnings and operator-calibrated lowered-head geometry rules. These are unvalidated monitoring heuristics, not additional trained classes or proof of distraction. An active posture warning persists through missing observations and clears on observed recovery. Continuous warning tones indicate an active alert, not independently confirmed danger. The frozen research output is retained separately in demo logs.
+
 ## Model identities
 
 | Model | Architecture | Seed / epoch | SHA256 |
