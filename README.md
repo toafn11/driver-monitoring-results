@@ -75,10 +75,12 @@ This optional rule is a **demo extension, not a validated drowsiness diagnosis**
 
 ### Missing face and lowered-head monitoring
 
+Posture calibration is **session-only**, never loaded from a previous run. Click the video preview (not the CMD terminal) before pressing keys. `C` starts calibration or replaces a locked reference; `R` clears it and disables the lowered-head comparison until calibration completes again. The display shows `NOT SET`, `COLLECTING` with progress/reason, or green `LOCKED` with a reference number. A terminal confirmation is printed on each successful lock. Recalibration clears stale lowered-head warnings but leaves independent visibility and model alerts intact. Optional summary logs contain the reference for auditing only; they are not settings files. Holding C while collecting no longer resets the collection timer.
+
 `DEMO_ALERTS.cmd` and `DEMO_BODY_ALERTS.cmd` enable `--monitor-alerts`. This adds two separate demo warnings:
 
 - `driver_not_visible`: face detection is unavailable continuously for 2 seconds. This is an observation warning, **not proof of distraction**. Occlusion, leaving the frame, low light, or a lowered head can all cause it. It works before posture calibration.
-- `head_lowered`: relative face geometry indicates a sustained change from the operator's forward-looking posture for 1 second. Look forward, press **C** in the preview, and hold still for at least 2 seconds until `Posture: ready`. Recalibrate after moving the camera or changing seat position. For a video/headless run that starts with a known forward-looking pose, use `--calibrate-at-start`; do not calibrate on an already lowered head.
+- `head_lowered`: relative face geometry indicates a sustained change from the operator's forward-looking posture for 1 second. Look forward, press **C** in the preview, and hold still for at least 2 seconds until `Posture: LOCKED`. Recalibrate after moving the camera or changing seat position. For a video/headless run that starts with a known forward-looking pose, use `--calibrate-at-start`; do not calibrate on an already lowered head.
 
 Both warnings require 0.5 seconds of observed recovery to clear. Losing face landmarks does not clear an already active lowered-head warning. Observation gaps over 1 second reset pending activation/recovery timers rather than counting unobserved time. Without calibration, lowered-head detection remains unknown; missing-face warnings still operate.
 

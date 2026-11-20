@@ -2,6 +2,10 @@
 
 This document describes software checks for the demo package, not new model-accuracy results.
 
+## Posture calibration correction, 20 November 2026
+
+All 30 unit tests passed; Python compilation passed. New tests verify replacement of a locked baseline, removal of stale posture warnings without clearing independent visibility alerts, key-repeat handling, progress and missing-face feedback, explicit reset, and fresh state in a new session. A synthetic overlay was visually inspected for the green LOCKED confirmation and C/R instructions. No webcam session was used for this verification. References remain in memory only; summary logs are not reloaded as settings.
+
 ## Demo extension verification, 18 November 2026
 
 ### Follow-up: visibility, posture and looping sound

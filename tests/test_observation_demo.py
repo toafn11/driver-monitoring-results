@@ -9,6 +9,34 @@ def frame(t,face=True,nose=.4,center=.3,scale=.2):
 
 
 class ObservationTests(unittest.TestCase):
+    def test_recalibration_clears_old_posture_warning_and_locks_new_reference(self):
+        p=self.calibrated()
+        for t in [2.5,3,3.5]:p.update(frame(t,nose=.6))
+        p.active.add('driver_not_visible')
+        self.assertIn('head_lowered',p.active)
+        p.start_calibration()
+        self.assertNotIn('head_lowered',p.active)
+        self.assertIn('driver_not_visible',p.active)
+        for t in [4,4.5,5,5.5,6]:
+            p.start_calibration()  # Key auto-repeat must not restart collection.
+            p.update(frame(t,nose=.45))
+        self.assertEqual(p.calibration_status()['state'],'LOCKED')
+        self.assertEqual(p.calibration_revision,2)
+        self.assertAlmostEqual(p.baseline['nose_ratio'],.45)
+        p.reset_calibration()
+        self.assertEqual(p.calibration_status()['state'],'NOT SET')
+        self.assertIsNone(p.baseline)
+        self.assertEqual(ObservationDemoAlert().calibration_revision,0)
+        self.assertIsNone(ObservationDemoAlert().baseline)
+
+    def test_calibration_progress_and_missing_face_message(self):
+        p=ObservationDemoAlert();p.start_calibration()
+        p.update(frame(0));p.update(frame(.5))
+        self.assertAlmostEqual(p.calibration_status()['progress'],.25)
+        p.update(frame(1,False))
+        self.assertEqual(p.calibration_status()['progress'],0)
+        self.assertIn('visible face',p.calibration_status()['note'])
+
     def test_geometry_is_relative_and_rejects_invalid_landmarks(self):
         from types import SimpleNamespace
         from driver_system.preprocess import demo_geometry

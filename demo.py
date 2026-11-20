@@ -38,13 +38,15 @@ def overlay(frame,result,body_enabled,processing_ms):
         pad=640-canvas.shape[1]
         canvas=cv2.copyMakeBorder(canvas,0,0,pad//2,pad-pad//2,cv2.BORDER_CONSTANT,value=(18,18,18))
     active=result['alerts']['active']
-    lines=['RESEARCH DEMO | Q/Esc: quit | C: calibrate posture | No recording',
+    lines=['RESEARCH DEMO | Q/Esc: quit | C: set posture | R: clear | No recording',
            'ALERT: '+(', '.join(active) if active else 'none (not a safety guarantee)'),
            'Unknown: '+(', '.join(result['alerts']['unknown']) or 'none'),
            'Action branch: '+('ENABLED - body view declared by operator' if body_enabled else 'DISABLED - face-only demo')]
     lines += ['Audio: '+result.get('audio_status','disabled')]
     if 'demo_observation' in result:
-        lines += ['Posture: '+result['demo_observation']['calibration'],
+        state=result['demo_observation']['calibration_status']
+        lines += ['Posture: '+state['state']+' | '+str(round(state['progress']*100))+'% | reference #'+str(state['revision']),
+                  state['note'],
                   'Visibility: '+('face detected' if result['quality'].get('face_available') else 'FACE MISSING - attention unknown')]
     if 'demo_yawn' in result:
         score=result['demo_yawn']['score']
@@ -53,7 +55,7 @@ def overlay(frame,result,body_enabled,processing_ms):
     lines += ['Inference: '+format(processing_ms,'.0f')+' ms | Webcam performance not validated']
     wrapped=[]
     for i,line in enumerate(lines):
-        color=(70,70,255) if i==1 and active else (230,230,230)
+        color=(70,70,255) if i==1 and active else ((90,230,90) if line.startswith('Posture: LOCKED') else (230,230,230))
         current=''
         for word in line.split():
             candidate=(current+' '+word).strip()
@@ -79,6 +81,8 @@ def run(args):
     yawn_alert=YawnDemoAlert() if args.yawn_alert else None
     monitor=ObservationDemoAlert() if args.monitor_alerts else None
     if monitor and args.calibrate_at_start:monitor.start_calibration()
+    if monitor:print('POSTURE: new session, no saved reference loaded. Click the VIDEO PREVIEW then press C to calibrate; R to clear.',flush=True)
+    last_calibration_revision=0
     audio=AlertAudio(enabled=args.sound,continuous=True)
     started=time.monotonic()
     try:
@@ -110,12 +114,17 @@ def run(args):
                         if key in (ord('q'),ord('Q'),27):
                             stop_requested=True;break
                         if key in (ord('c'),ord('C')) and monitor is not None:monitor.start_calibration()
+                        if key in (ord('r'),ord('R')) and monitor is not None:monitor.reset_calibration()
                 if stop_requested:break
             if t+1e-6>=next_sample:
                 begin=time.perf_counter()
                 result=system.process(cv2.cvtColor(frame,cv2.COLOR_BGR2RGB),t)
                 if yawn_alert is not None:result=yawn_alert.update(result)
-                if monitor is not None:result=monitor.update(result)
+                if monitor is not None:
+                    result=monitor.update(result)
+                    if monitor.calibration_revision!=last_calibration_revision:
+                        print('POSTURE LOCKED: reference #'+str(monitor.calibration_revision)+'. C to set again; R to clear.',flush=True)
+                        last_calibration_revision=monitor.calibration_revision
                 audio.update(result['alerts']['active'])
                 result['audio_status']=audio.status
                 ms=(time.perf_counter()-begin)*1000
@@ -127,6 +136,7 @@ def run(args):
                 key=cv2.waitKey(1)&0xff
                 if key in (ord('q'),ord('Q'),27):break
                 if key in (ord('c'),ord('C')) and monitor is not None:monitor.start_calibration()
+                if key in (ord('r'),ord('R')) and monitor is not None:monitor.reset_calibration()
                 if cv2.getWindowProperty('Driver Monitoring - Experimental Demo',cv2.WND_PROP_VISIBLE)<1:break
             if args.max_samples and samples>=args.max_samples:break
         if not samples:raise RuntimeError('No samples processed.')
